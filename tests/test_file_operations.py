@@ -7,8 +7,9 @@ def test_save_summary(tmpdir):
     # Test saving summary to file
     summary = "This is a test summary."
     output_path = tmpdir.mkdir("output")
-    save_summary(summary, str(output_path))
-    file_path = os.path.join(str(output_path), "summary.md")
+    video_title = "Test Video"
+    save_summary(summary, str(output_path), video_title)
+    file_path = os.path.join(str(output_path), "Test Video.md")
     assert os.path.exists(file_path)
     with open(file_path, "r") as file:
         content = file.read()

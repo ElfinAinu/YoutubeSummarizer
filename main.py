@@ -22,7 +22,8 @@ def main():
             sys.exit(1)
         transcript = fetch_video_transcript(args.url)
         summary = generate_summary(transcript)
-        save_summary(summary, config.OUTPUT_FOLDER)
+        video_title = "Video Title"  # Fetch the actual video title here
+        save_summary(summary, config.OUTPUT_FOLDER, video_title)
     elif args.mode == "interactive":
         while True:
             url = input("Enter YouTube video URL (or 'exit' to quit): ")

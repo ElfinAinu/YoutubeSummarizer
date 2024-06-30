@@ -14,14 +14,14 @@ Set up the following environment variables in your environment (e.g., using a `.
 - `ANTHROPIC_API_KEY`
 - `OPENAI_API_KEY`
 - `YOUTUBE_API_KEY`
-- `OUTPUT_FOLDER`
+- `LIEUTUBE_PARENT_DIRECTORY`
 
 Example of setting environment variables in a `.env` file:
 ```sh
 ANTHROPIC_API_KEY=your_anthropic_api_key
 OPENAI_API_KEY=your_openai_api_key
 YOUTUBE_API_KEY=your_youtube_api_key
-OUTPUT_FOLDER=output
+LIEUTUBE_PARENT_DIRECTORY=output
 ```
 
 ## Running the Program

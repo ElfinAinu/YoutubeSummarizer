@@ -41,7 +41,7 @@ Set up the following environment variables in your environment (e.g., using a `.
 - `ANTHROPIC_API_KEY`
 - `OPENAI_API_KEY`
 - `YOUTUBE_API_KEY`
-- `OUTPUT_FOLDER`
+- `LIEUTUBE_PARENT_DIRECTORY`
 
 ## Contributing
 We welcome contributions to the YouTube Video Summarization Tool! Please follow these guidelines:

@@ -7,6 +7,7 @@ import logging
 from utils.api_helpers import fetch_video_transcript, fetch_playlist_videos
 from utils.summarization import generate_summary
 from utils.file_operations import save_summary
+from datetime import datetime
 
 def main():
     config.check_config()
@@ -43,29 +44,30 @@ def main():
         if not args.url:
             print("Error: URL is required for single video mode")
             sys.exit(1)
-        transcript = fetch_video_transcript(args.url)
-        summary = generate_summary(transcript)
-        video_title = "Video Title"  # Fetch the actual video title here
-        save_summary(summary, config.OUTPUT_FOLDER, video_title)
+        video_details = fetch_video_transcript(args.url)  # Fetch video details including transcript
+        transcript = video_details["transcript"]
+        summary = generate_summary(transcript, video_details["title"], video_details["url"], video_details["video_id"], datetime.now().strftime("%Y-%m-%d_%H%M%S"))
+        video_title = video_details["title"]  # Fetch the actual video title here
+        save_summary(summary, config.LIEUTUBE_PARENT_DIRECTORY, video_title)
     elif args.mode == "interactive":
         while True:
             url = input("Enter YouTube video URL (or 'exit' to quit): ")
             if url.lower() == "exit":
                 break
-            video_details = fetch_video_transcript(url)
+            video_details = fetch_video_transcript(url)  # No need to pass the API key
             transcript = video_details["transcript"]
             summary = generate_summary(transcript)
-            save_summary(summary, config.OUTPUT_FOLDER)
+            save_summary(summary, config.LIEUTUBE_PARENT_DIRECTORY)
     elif args.mode == "playlist":
         if not args.url:
             print("Error: URL is required for playlist mode")
             sys.exit(1)
-        videos = fetch_playlist_videos(args.url)
+        videos = fetch_playlist_videos(args.url)  # No need to pass the API key
         for video in videos:
-            video_details = fetch_video_transcript(video)
+            video_details = fetch_video_transcript(video)  # No need to pass the API key
             transcript = video_details["transcript"]
             summary = generate_summary(transcript)
-            save_summary(summary, config.OUTPUT_FOLDER, video_details["title"])
+            save_summary(summary, config.LIEUTUBE_PARENT_DIRECTORY, video_details["title"])
 
 def configure():
     print("Select LLM Provider:")
@@ -86,11 +88,11 @@ def configure():
     config.LANGGRAPH_MODEL = input("Enter LangGraph model (default: default_model): ") or "default_model"
 
     config.YOUTUBE_API_KEY = input("Enter YouTube API key: ") or config.YOUTUBE_API_KEY
-    config.OUTPUT_FOLDER = input("Enter output folder (default: output): ") or "output"
+    config.LIEUTUBE_PARENT_DIRECTORY = input("Enter output folder (default: output): ") or "output"
 
     config_data = {
         'YOUTUBE_API_KEY': config.YOUTUBE_API_KEY,
-        'OUTPUT_FOLDER': config.OUTPUT_FOLDER,
+        'LIEUTUBE_PARENT_DIRECTORY': config.LIEUTUBE_PARENT_DIRECTORY,
         'LLM_PROVIDER': config.LLM_PROVIDER,
         'OPENAI_MODEL': config.OPENAI_MODEL,
         'ANTHROPIC_MODEL': config.ANTHROPIC_MODEL,

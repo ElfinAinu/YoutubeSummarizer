@@ -2,15 +2,35 @@ from langgraph.graph import StateGraph
 from langchain_openai import ChatOpenAI
 import config
 from typing import TypedDict
+from datetime import datetime
+
+
+def fill_yaml_frontmatter(title, url, video_id, date):
+    yaml_frontmatter = f"""---
+    title: "{title}"
+    url: "{url}"
+    video_id: "{video_id}"
+    date: "{date}"
+    channel: "Channel Name"
+    references: ["Book Title", "Research Paper", "Other Video"]
+    tags: ["List", "Of", "Applicable", "Tags"]
+    categories: ["List", "Of", "Applicable", "Categories"]
+    ---
+    """
+    return yaml_frontmatter
 
 class StateSchema(TypedDict):
     transcript: str
     summary: str
     guidance: str
     critique: str
-    outline: str  # Added outline to the state schema
+    outline: str
     expanded_summary: str
     yaml_frontmatter: str
+    title: str
+    url: str
+    video_id: str
+    date: str
 
 def generate_outline(state):
     transcript = state['transcript']
@@ -62,22 +82,28 @@ def expound_summary(state):
     return {"expanded_summary": expanded_summary}
 
 def generate_yaml_frontmatter(state):
+    title = state['title']
+    url = state['url']
+    video_id = state['video_id']
+    date = state['date']
     transcript = state['transcript']
-    # Read the YAML format guidance from the file
-    with open('utils/yaml_format.md', 'r') as file:
-        yaml_format = file.read()
+    
+    yaml_frontmatter = fill_yaml_frontmatter(title, url, video_id, date)
+
     model = ChatOpenAI(api_key=config.OPENAI_API_KEY, model=config.OPENAI_MODEL)
-    response = model.invoke(f"""Generate a yaml frontmatter for the following transcript, do not wrap the yaml frontmatter in any markdown formatting. 
-                             Use the following format as a guide:
-                             {yaml_format}
+    response = model.invoke(f"""Generate a yaml frontmatter to help with categorization and searching for this summary in a large collection.
+                            Fence the yaml content between triple dashes `---`. Do not place any additional content or formatting in your output.
+                            The yaml fencing `---` must begin at the very first character of your output. The yaml fencing `---` must be the very last part of your output.
+                            Return only that content.
+                            Use the following format as a guide:
+                             {yaml_frontmatter}
                              : {transcript}""")
-    yaml_frontmatter = response.content  # Access the content attribute directly
+    yaml_frontmatter = response.content
     return {"yaml_frontmatter": yaml_frontmatter}
 
-
-def generate_summary(transcript):
+def generate_summary(transcript, title, url, video_id, date):
     # Read the output guidance from the file
-    with open('utils/output_guidance.md', 'r') as file:
+    with open('utils/output_guidance.md', 'r', encoding='utf-8') as file:
         guidance = file.read()
     
     # Initialize the graph with state schema
@@ -86,19 +112,21 @@ def generate_summary(transcript):
     # Add nodes to the graph
     graph.add_node("generate_outline", generate_outline)
     graph.add_node("summarize", call_model)
-    graph.add_node("critique_step", critique_summary)
+    graph.add_node("critique_outline", critique_summary)  # Critique step for outline
+    graph.add_node("critique_summary", critique_summary)  # Critique step for summary
     graph.add_node("re_summarize", call_model)  # Re-run summarize step with critique input
     graph.add_node("expound_summary", expound_summary)  # Add expound_summary step
-    graph.add_node("generate_yaml_frontmatter", generate_yaml_frontmatter)  # Add generate_yaml_frontmatter step
+    graph.add_node("generate_yaml_frontmatter", generate_yaml_frontmatter)  # No input_keys argument
     
     # Set the entry point and finish point
     graph.set_entry_point("generate_outline")
     graph.set_finish_point("generate_yaml_frontmatter")
     
     # Add edges between nodes
-    graph.add_edge("generate_outline", "summarize")
-    graph.add_edge("summarize", "critique_step")
-    graph.add_edge("critique_step", "re_summarize")
+    graph.add_edge("generate_outline", "critique_outline")  # First critique after outline
+    graph.add_edge("critique_outline", "summarize")  # Summarize after first critique
+    graph.add_edge("summarize", "critique_summary")  # Second critique after summarization
+    graph.add_edge("critique_summary", "re_summarize")  # Re-summarize after second critique
     graph.add_edge("re_summarize", "expound_summary")
     graph.add_edge("expound_summary", "generate_yaml_frontmatter")  # Add edge to generate_yaml_frontmatter
     
@@ -106,7 +134,14 @@ def generate_summary(transcript):
     compiled_graph = graph.compile()
     
     # Run the graph with the input transcript and guidance
-    result = compiled_graph.invoke({"transcript": transcript, "guidance": guidance})
+    result = compiled_graph.invoke({
+        "transcript": transcript,
+        "guidance": guidance,
+        "title": title,
+        "url": url,
+        "video_id": video_id,
+        "date": date
+    })
     
     # Combine the expanded summary and yaml frontmatter
     combined_result = f"{result['yaml_frontmatter']}\n\n{result['summary']}\n\n{result['expanded_summary']}"

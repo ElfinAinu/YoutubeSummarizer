@@ -29,7 +29,7 @@ def save_config(config_data):
 config_data = load_config()
 
 # Output folder path
-OUTPUT_FOLDER = os.getenv('OUTPUT_FOLDER', 'output')
+LIEUTUBE_PARENT_DIRECTORY = os.getenv('LIEUTUBE_PARENT_DIRECTORY', 'output')
 # Preferred model for LangGraph
 LANGGRAPH_MODEL = config_data.get('LANGGRAPH_MODEL', 'default_model')
 
@@ -39,7 +39,7 @@ OPENAI_MODEL = config_data.get('OPENAI_MODEL', 'gpt-4')
 ANTHROPIC_MODEL = config_data.get('ANTHROPIC_MODEL', 'claude-3.5')
 
 def check_config():
-    required_vars = ['ANTHROPIC_API_KEY', 'OPENAI_API_KEY', 'YOUTUBE_API_KEY', 'OUTPUT_FOLDER']
+    required_vars = ['ANTHROPIC_API_KEY', 'OPENAI_API_KEY', 'YOUTUBE_API_KEY', 'LIEUTUBE_PARENT_DIRECTORY']
     missing_vars = [var for var in required_vars if not os.getenv(var)]
     
     if missing_vars:

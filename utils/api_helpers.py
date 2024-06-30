@@ -1,8 +1,22 @@
 import re
 import logging
-import requests
-from bs4 import BeautifulSoup
 from youtube_transcript_api import YouTubeTranscriptApi
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+import config  # Import the config module
+
+def get_video_details(video_id):
+    youtube = build('youtube', 'v3', developerKey=config.YOUTUBE_API_KEY)  # Use config.YOUTUBE_API_KEY
+    request = youtube.videos().list(part='snippet', id=video_id)
+    response = request.execute()
+
+    if response['items']:
+        video_details = response['items'][0]['snippet']
+        title = video_details['title']
+        channel_name = video_details['channelTitle']
+        return title, channel_name
+    else:
+        return None, None
 
 def fetch_video_transcript(video_url):
     # Use YouTubeTranscriptApi to fetch video transcript and details
@@ -15,45 +29,24 @@ def fetch_video_transcript(video_url):
         transcript_text = "\n".join([entry['text'] for entry in transcript])
         logging.info(f"Fetched transcript: {transcript_text[:100]}...")  # Log the first 100 characters
         
-        # Fetch video details using web scraping
-        video_details = scrape_video_details(video_url)
+        # Fetch video details using YouTube Data API
+        title, channel_name = get_video_details(video_id)
         video_info = {
-            "title": video_details.get('title', 'N/A'),
-            "channel": video_details.get('channel', 'N/A'),
-            "upload_date": video_details.get('upload_date', 'N/A'),
+            "title": title if title else 'N/A',
+            "channel": channel_name if channel_name else 'N/A',
+            "url": video_url,
+            "video_id": video_id,
             "transcript": transcript_text
         }
         logging.info(f"Fetched video details: {video_info}")
         return video_info
         
+    except HttpError as e:
+        logging.error(f"HTTP error occurred: {e.resp.status} {e.content}")
+        raise Exception("Failed to fetch video transcript")
     except Exception as e:
         logging.error(f"Failed to fetch video transcript for URL: {video_url}. Error: {e}")
         raise Exception("Failed to fetch video transcript")
-
-def scrape_video_details(video_url):
-    response = requests.get(video_url)
-    if response.status_code != 200:
-        raise Exception(f"Failed to fetch video page. Status code: {response.status_code}")
-    
-    soup = BeautifulSoup(response.content, 'html.parser')
-    
-    # Extract video title
-    title_tag = soup.find('meta', {'name': 'title'})
-    title = title_tag['content'] if title_tag else 'N/A'
-    
-    # Extract channel name
-    channel_tag = soup.find('meta', {'itemprop': 'author'})
-    channel = channel_tag['content'] if channel_tag else 'N/A'
-    
-    # Extract upload date
-    upload_date_tag = soup.find('meta', {'itemprop': 'uploadDate'})
-    upload_date = upload_date_tag['content'] if upload_date_tag else 'N/A'
-    
-    return {
-        "title": title,
-        "channel": channel,
-        "upload_date": upload_date
-    }
 
 def fetch_playlist_videos(playlist_url):
     # Use YouTube API to fetch all videos in a playlist
@@ -61,22 +54,29 @@ def fetch_playlist_videos(playlist_url):
     playlist_id = extract_playlist_id(playlist_url)
     logging.info(f"Extracted playlist ID: {playlist_id}")
     
-    youtube = get_authenticated_service()
+    youtube = build('youtube', 'v3', developerKey=config.YOUTUBE_API_KEY)  # Use config.YOUTUBE_API_KEY
     
-    request = youtube.playlistItems().list(
-        part="snippet",
-        playlistId=playlist_id,
-        maxResults=50
-    )
-    response = request.execute()
-    
-    logging.info(f"Received response: {response}")
-    
-    if 'items' in response and len(response['items']) > 0:
-        video_urls = [item['snippet']['resourceId']['videoId'] for item in response['items']]
-        return video_urls
-    else:
-        logging.error("Failed to fetch playlist videos for URL: %s. Response: %s", playlist_url, response)
+    try:
+        request = youtube.playlistItems().list(
+            part="snippet",
+            playlistId=playlist_id,
+            maxResults=50
+        )
+        response = request.execute()
+        
+        logging.info(f"Received response: {response}")
+        
+        if 'items' in response and len(response['items']) > 0:
+            video_urls = [item['snippet']['resourceId']['videoId'] for item in response['items']]
+            return video_urls
+        else:
+            logging.error("Failed to fetch playlist videos for URL: %s. Response: %s", playlist_url, response)
+            raise Exception("Failed to fetch playlist videos")
+    except HttpError as e:
+        logging.error(f"HTTP error occurred: {e.resp.status} {e.content}")
+        raise Exception("Failed to fetch playlist videos")
+    except Exception as e:
+        logging.error(f"Failed to fetch playlist videos for URL: {playlist_url}. Error: {e}")
         raise Exception("Failed to fetch playlist videos")
 
 def extract_video_id(url):

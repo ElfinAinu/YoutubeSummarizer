@@ -5,9 +5,15 @@ import config
 
 def fetch_video_transcript(video_url):
     # Use YouTube API to fetch video transcript
+    logging.info(f"Fetching transcript for video URL: {video_url}")
     video_id = extract_video_id(video_url)
+    logging.info(f"Extracted video ID: {video_id}")
     api_url = f"https://www.googleapis.com/youtube/v3/captions?videoId={video_id}&key={config.YOUTUBE_API_KEY}"
+    logging.info(f"Making API request to URL: {api_url}")
+    logging.info(f"Making API request to URL: {api_url}")
     response = requests.get(api_url)
+    logging.info(f"Received response with status code: {response.status_code}")
+    logging.info(f"Received response with status code: {response.status_code}")
     if response.status_code == 200:
         transcript_data = response.json()
         return transcript_data['items'][0]['snippet']['text']
@@ -16,7 +22,9 @@ def fetch_video_transcript(video_url):
 
 def fetch_playlist_videos(playlist_url):
     # Use YouTube API to fetch all videos in a playlist
+    logging.info(f"Fetching videos for playlist URL: {playlist_url}")
     playlist_id = extract_playlist_id(playlist_url)
+    logging.info(f"Extracted playlist ID: {playlist_id}")
     api_url = f"https://www.googleapis.com/youtube/v3/playlistItems?playlistId={playlist_id}&key={config.YOUTUBE_API_KEY}&part=snippet&maxResults=50"
     response = requests.get(api_url)
     if response.status_code == 200:

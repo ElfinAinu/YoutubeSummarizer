@@ -3,6 +3,7 @@
 import sys
 import argparse
 import config
+import logging
 from utils.api_helpers import fetch_video_transcript, fetch_playlist_videos
 from utils.summarization import generate_summary
 from utils.file_operations import save_summary
@@ -14,10 +15,20 @@ def main():
     parser.add_argument("url", nargs="?", help="YouTube video or playlist URL")
     parser.add_argument("--provider", choices=["openai", "anthropic"], default="openai", help="LLM provider to use")
     parser.add_argument("--model", help="Model to use for the selected LLM provider")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
     args = parser.parse_args()
 
+    if args.verbose:
+        logging.basicConfig(level=logging.INFO)
+    else:
+        logging.basicConfig(level=logging.WARNING)
+
+    print(f"Mode: {args.mode}")  # Debug print
+
     if args.mode == "config":
+        print("Entering configuration mode...")  # Debug print
         configure()
+        print("Configuration complete.")  # Debug print
         sys.exit(0)
 
     # Set the LLM provider and model in the config
@@ -80,4 +91,3 @@ def configure():
     }
     config.save_config(config_data)
     print("Configuration saved successfully.")
-    main()

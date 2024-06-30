@@ -37,14 +37,22 @@ Example:
 python main.py playlist https://www.youtube.com/playlist?list=PLynG1JpD5GQ
 
 ## Configuration
-Set up the following environment variables in `config.py`:
+Set up the following environment variables in your environment (e.g., using a `.env` file or exporting them in your shell):
 - `ANTHROPIC_API_KEY`
 - `OPENAI_API_KEY`
 - `YOUTUBE_API_KEY`
 - `OUTPUT_FOLDER`
 
 ## Contributing
-Guidelines for contributing to the project.
+We welcome contributions to the YouTube Video Summarization Tool! Please follow these guidelines:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bugfix.
+3. Make your changes and commit them with clear and concise messages.
+4. Push your changes to your fork.
+5. Create a pull request to the main repository.
+
+Please ensure your code adheres to the existing style and includes tests for any new functionality.
 
 ## License
-License information.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.

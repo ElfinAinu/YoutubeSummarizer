@@ -1,15 +1,10 @@
 # Functions for generating summaries
 
-import openai
+from langgraph import LangGraph
 import config
 
 def generate_summary(transcript):
-    # Use OpenAI API to generate summary from transcript
-    openai.api_key = config.OPENAI_API_KEY
-    response = openai.Completion.create(
-        engine="davinci",
-        prompt=f"Summarize the following transcript:\n\n{transcript}",
-        max_tokens=150
-    )
-    summary = response.choices[0].text.strip()
+    # Use LangGraph to generate summary from transcript
+    lg = LangGraph(api_key=config.ANTHROPIC_API_KEY)
+    summary = lg.summarize(transcript)
     return summary

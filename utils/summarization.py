@@ -1,6 +1,7 @@
 from langgraph.graph import StateGraph
 from langchain_openai import ChatOpenAI
 import config
+import logging
 from typing import TypedDict
 from datetime import datetime
 

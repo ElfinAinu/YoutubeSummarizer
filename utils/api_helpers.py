@@ -2,6 +2,7 @@
 
 import requests
 import config
+import logging
 
 def fetch_video_transcript(video_url):
     # Use YouTube API to fetch video transcript
@@ -10,9 +11,7 @@ def fetch_video_transcript(video_url):
     logging.info(f"Extracted video ID: {video_id}")
     api_url = f"https://www.googleapis.com/youtube/v3/captions?videoId={video_id}&key={config.YOUTUBE_API_KEY}"
     logging.info(f"Making API request to URL: {api_url}")
-    logging.info(f"Making API request to URL: {api_url}")
     response = requests.get(api_url)
-    logging.info(f"Received response with status code: {response.status_code}")
     logging.info(f"Received response with status code: {response.status_code}")
     if response.status_code == 200:
         transcript_data = response.json()

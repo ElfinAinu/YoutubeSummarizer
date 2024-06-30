@@ -83,11 +83,17 @@ def configure():
 
     config.LANGGRAPH_MODEL = input("Enter LangGraph model (default: default_model): ") or "default_model"
 
+    config.YOUTUBE_API_KEY = input("Enter YouTube API key: ") or config.YOUTUBE_API_KEY
+    config.OUTPUT_FOLDER = input("Enter output folder (default: output): ") or "output"
+
     config_data = {
+        'YOUTUBE_API_KEY': config.YOUTUBE_API_KEY,
+        'OUTPUT_FOLDER': config.OUTPUT_FOLDER,
         'LLM_PROVIDER': config.LLM_PROVIDER,
         'OPENAI_MODEL': config.OPENAI_MODEL,
         'ANTHROPIC_MODEL': config.ANTHROPIC_MODEL,
         'LANGGRAPH_MODEL': config.LANGGRAPH_MODEL
     }
     config.save_config(config_data)
+    print("Configuration saved successfully.")
     print("Configuration saved successfully.")

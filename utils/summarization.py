@@ -1,6 +1,6 @@
 # Functions for generating summaries
 
-from langgraph import LangGraph
+from langgraph.langgraph import LangGraph
 import config
 
 def generate_summary(transcript):

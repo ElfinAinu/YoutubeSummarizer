@@ -132,4 +132,22 @@ The application should integrate with the following APIs:
 - Ensure that the application complies with relevant regulations, such as data privacy laws (e.g., GDPR, CCPA) and terms of service for the APIs used.
 - Implement mechanisms for handling user data securely and obtaining necessary permissions or consent.
 
-By including these additional points, the requirements document will be more comprehensive and cover various aspects of the application's development, deployment, and maintenance.
+# YouTube Video Summarization Tool
+
+## Overview
+This tool summarizes YouTube videos using Anthropic, OpenAI, and YouTube APIs.
+
+## Installation
+Instructions for installing dependencies.
+
+## Usage
+Examples of how to use the tool in different modes.
+
+## Configuration
+Details on setting up environment variables and configuration files.
+
+## Contributing
+Guidelines for contributing to the project.
+
+## License
+License information.

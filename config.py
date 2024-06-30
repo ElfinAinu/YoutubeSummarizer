@@ -43,3 +43,4 @@ def check_config():
     
     if missing_vars:
         raise EnvironmentError(f"Missing required environment variables: {', '.join(missing_vars)}")
+    logging.info(f"Using YouTube API key: {YOUTUBE_API_KEY}")

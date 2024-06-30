@@ -2,8 +2,6 @@
 
 import sys
 import argparse
-import argparse
-import sys
 import config
 from utils.api_helpers import fetch_video_transcript, fetch_playlist_videos
 from utils.summarization import generate_summary

@@ -2,12 +2,13 @@
 
 import os
 
+import os
+import json
+
 # Load API keys from environment variables
 ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
-
-import json
 
 # Load configuration from JSON file
 CONFIG_FILE = 'config.json'

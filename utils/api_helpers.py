@@ -17,6 +17,7 @@ def fetch_video_transcript(video_url):
         transcript_data = response.json()
         return transcript_data['items'][0]['snippet']['text']
     else:
+        logging.error("Failed to fetch video transcript for URL: %s", video_url)
         raise Exception("Failed to fetch video transcript")
 
 def fetch_playlist_videos(playlist_url):

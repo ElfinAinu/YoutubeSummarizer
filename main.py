@@ -18,10 +18,10 @@ def main():
     parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
     args = parser.parse_args()
 
-    if args.verbose:
-        logging.basicConfig(level=logging.INFO)
-    else:
-        logging.basicConfig(level=logging.WARNING)
+    logging.basicConfig(
+        level=logging.INFO if args.verbose else logging.WARNING,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
     print(f"Mode: {args.mode}")  # Debug print
 

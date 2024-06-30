@@ -5,7 +5,10 @@ import config
 
 def generate_summary(transcript):
     # Use LangGraph to generate summary from transcript
-    lg = LangGraph(api_key=config.ANTHROPIC_API_KEY, model=config.LANGGRAPH_MODEL)
+    if config.LLM_PROVIDER == "openai":
+        lg = LangGraph(api_key=config.OPENAI_API_KEY, model=config.OPENAI_MODEL)
+    elif config.LLM_PROVIDER == "anthropic":
+        lg = LangGraph(api_key=config.ANTHROPIC_API_KEY, model=config.ANTHROPIC_MODEL)
     
     while True:
         summary = lg.summarize(transcript)

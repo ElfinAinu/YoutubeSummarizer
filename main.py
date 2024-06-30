@@ -14,7 +14,17 @@ def main():
     parser = argparse.ArgumentParser(description="YouTube Video Summarization Tool")
     parser.add_argument("mode", choices=["single", "interactive", "playlist"], help="Mode of operation")
     parser.add_argument("url", nargs="?", help="YouTube video or playlist URL")
+    parser.add_argument("--provider", choices=["openai", "anthropic"], default="openai", help="LLM provider to use")
+    parser.add_argument("--model", help="Model to use for the selected LLM provider")
     args = parser.parse_args()
+
+    # Set the LLM provider and model in the config
+    config.LLM_PROVIDER = args.provider
+    if args.model:
+        if args.provider == "openai":
+            config.OPENAI_MODEL = args.model
+        elif args.provider == "anthropic":
+            config.ANTHROPIC_MODEL = args.model
 
     if args.mode == "single":
         if not args.url:

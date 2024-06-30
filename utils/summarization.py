@@ -5,7 +5,7 @@ import config
 
 def generate_summary(transcript):
     # Use LangGraph to generate summary from transcript
-    lg = LangGraph(api_key=config.ANTHROPIC_API_KEY)
+    lg = LangGraph(api_key=config.ANTHROPIC_API_KEY, model=config.LANGGRAPH_MODEL)
     
     while True:
         summary = lg.summarize(transcript)

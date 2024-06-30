@@ -103,11 +103,15 @@ def generate_yaml_frontmatter(state):
 
 def generate_summary(transcript, title, url, video_id, date):
     # Read the output guidance from the file
+    logging.info("Reading output guidance from file...")
     with open('utils/output_guidance.md', 'r', encoding='utf-8') as file:
+        logging.info("Output guidance read successfully.")
         guidance = file.read()
     
     # Initialize the graph with state schema
+    logging.info("Initializing StateGraph with StateSchema...")
     graph = StateGraph(StateSchema)
+    logging.info("StateGraph initialized.")
     
     # Add nodes to the graph
     graph.add_node("generate_outline", generate_outline)
@@ -131,10 +135,14 @@ def generate_summary(transcript, title, url, video_id, date):
     graph.add_edge("expound_summary", "generate_yaml_frontmatter")  # Add edge to generate_yaml_frontmatter
     
     # Compile the graph
+    logging.info("Compiling the graph...")
     compiled_graph = graph.compile()
+    logging.info("Graph compiled successfully.")
     
     # Run the graph with the input transcript and guidance
+    logging.info("Invoking the compiled graph with input data...")
     result = compiled_graph.invoke({
+        logging.info("Graph invocation complete.")
         "transcript": transcript,
         "guidance": guidance,
         "title": title,
@@ -146,4 +154,5 @@ def generate_summary(transcript, title, url, video_id, date):
     # Combine the expanded summary and yaml frontmatter
     combined_result = f"{result['yaml_frontmatter']}\n\n{result['summary']}\n\n{result['expanded_summary']}"
     
+    logging.info("Summary generation complete.")
     return combined_result

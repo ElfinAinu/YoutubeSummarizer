@@ -2,6 +2,7 @@
 
 import requests
 import json
+import config
 
 def fetch_video_transcript(video_url):
     # Use YouTube API to fetch video transcript

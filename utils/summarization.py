@@ -1,6 +1,7 @@
 # Functions for generating summaries
 
 import openai
+import config
 
 def generate_summary(transcript):
     # Use OpenAI API to generate summary from transcript

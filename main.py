@@ -10,7 +10,6 @@ from utils.file_operations import save_summary
 from datetime import datetime
 
 def main():
-    config.check_config()
     parser = argparse.ArgumentParser(description="YouTube Video Summarization Tool")
     parser.add_argument("mode", choices=["single", "interactive", "playlist", "config"], help="Mode of operation")
     parser.add_argument("url", nargs="?", help="YouTube video or playlist URL")
@@ -24,12 +23,16 @@ def main():
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
 
-    print(f"Mode: {args.mode}")  # Debug print
+    logging.info("Checking configuration...")
+    config.check_config()
+    logging.info("Configuration check complete.")
+
+    logging.info(f"Mode: {args.mode}")
 
     if args.mode == "config":
-        print("Entering configuration mode...")  # Debug print
+        logging.info("Entering configuration mode...")
         configure()
-        print("Configuration complete.")  # Debug print
+        logging.info("Configuration complete.")
         sys.exit(0)
 
     # Set the LLM provider and model in the config
@@ -44,30 +47,49 @@ def main():
         if not args.url:
             print("Error: URL is required for single video mode")
             sys.exit(1)
-        video_details = fetch_video_transcript(args.url)  # Fetch video details including transcript
+        logging.info(f"Fetching video transcript for URL: {args.url}")
+        video_details = fetch_video_transcript(args.url)
+        logging.info(f"Fetched video details: {video_details}")
         transcript = video_details["transcript"]
+        logging.info("Generating summary...")
         summary = generate_summary(transcript, video_details["title"], video_details["url"], video_details["video_id"], datetime.now().strftime("%Y-%m-%d_%H%M%S"))
+        logging.info("Summary generated.")
         video_title = video_details["title"]  # Fetch the actual video title here
+        logging.info(f"Saving summary to {config.LIEUTUBE_PARENT_DIRECTORY} with title {video_title}")
         save_summary(summary, config.LIEUTUBE_PARENT_DIRECTORY, video_title)
+        logging.info("Summary saved.")
     elif args.mode == "interactive":
         while True:
             url = input("Enter YouTube video URL (or 'exit' to quit): ")
-            if url.lower() == "exit":
+            if url.lower() == "exit" or url == "":
                 break
-            video_details = fetch_video_transcript(url)  # No need to pass the API key
+            logging.info(f"Fetching video transcript for URL: {url}")
+            video_details = fetch_video_transcript(url)
+            logging.info(f"Fetched video title: {video_details['title']}")
+            logging.info(f"Fetched video URL: {video_details['url']}")
+            transcript_preview = video_details['transcript'][:100] + '...' if len(video_details['transcript']) > 100 else video_details['transcript']
+            logging.info(f"Fetched video transcript preview: {transcript_preview}")
             transcript = video_details["transcript"]
+            logging.info("Generating summary...")
             summary = generate_summary(transcript)
+            logging.info("Summary generated.")
+            logging.info(f"Saving summary to {config.LIEUTUBE_PARENT_DIRECTORY}")
             save_summary(summary, config.LIEUTUBE_PARENT_DIRECTORY)
+            logging.info("Summary saved.")
     elif args.mode == "playlist":
         if not args.url:
             print("Error: URL is required for playlist mode")
             sys.exit(1)
         videos = fetch_playlist_videos(args.url)  # No need to pass the API key
         for video in videos:
-            video_details = fetch_video_transcript(video)  # No need to pass the API key
+            logging.info(f"Fetching video transcript for video ID: {video}")
+            video_details = fetch_video_transcript(video)
+            logging.info(f"Fetched video details: {video_details}")
             transcript = video_details["transcript"]
             summary = generate_summary(transcript)
+            logging.info(f"Saving summary to {config.LIEUTUBE_PARENT_DIRECTORY} with title {video_details['title']}")
             save_summary(summary, config.LIEUTUBE_PARENT_DIRECTORY, video_details["title"])
+            logging.info("Summary saved.")
 
 def configure():
     print("Select LLM Provider:")
@@ -103,4 +125,3 @@ def configure():
 
 if __name__ == "__main__":
     main()
-    print("Configuration saved successfully.")

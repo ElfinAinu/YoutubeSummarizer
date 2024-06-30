@@ -3,6 +3,7 @@
 import os
 
 import re
+import logging
 
 def sanitize_title(title):
     # Remove invalid characters from the title

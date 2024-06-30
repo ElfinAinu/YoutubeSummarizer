@@ -24,21 +24,20 @@ def get_video_details(video_id):
 
 def fetch_video_transcript(video_url):
     # Use YouTubeTranscriptApi to fetch video transcript and details
-    logging.info(f"Fetching transcript for video URL: {video_url}")
     video_id = extract_video_id(video_url)
     logging.info(f"Extracted video ID: {video_id}")
     
     try:
-        logging.info(f"Fetching transcript for video ID: {video_id}")
+        logging.info(f"Initiating transcript fetch for video ID: {video_id}")
         transcript = YouTubeTranscriptApi.get_transcript(video_id)
-        logging.info("Transcript fetched successfully.")
+        logging.info(f"Successfully fetched transcript for video ID: {video_id}")
         transcript_text = "\n".join([entry['text'] for entry in transcript])
-        logging.info(f"Fetched transcript: {transcript_text[:100]}...")  # Log the first 100 characters
+        logging.info(f"Transcript preview: {transcript_text[:100]}...")  # Log the first 100 characters
         
         # Fetch video details using YouTube Data API
         logging.info(f"Fetching video details for video ID: {video_id}")
         title, channel_name = get_video_details(video_id)
-        logging.info(f"Fetched video details: title={title}, channel_name={channel_name}")
+        logging.info(f"Successfully fetched video details for video ID: {video_id}")
         video_info = {
             "title": title if title else 'N/A',
             "channel": channel_name if channel_name else 'N/A',
@@ -68,8 +67,8 @@ def fetch_playlist_videos(playlist_url):
     
     try:
         logging.info(f"Fetching playlist items for playlist ID: {playlist_id}")
+        logging.info("Playlist items fetched successfully.")
         request = youtube.playlistItems().list(
-            logging.info("Playlist items fetched successfully.")
             part="snippet",
             playlistId=playlist_id,
             maxResults=50

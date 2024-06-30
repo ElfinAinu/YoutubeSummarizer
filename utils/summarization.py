@@ -142,7 +142,6 @@ def generate_summary(transcript, title, url, video_id, date):
     # Run the graph with the input transcript and guidance
     logging.info("Invoking the compiled graph with input data...")
     result = compiled_graph.invoke({
-        logging.info("Graph invocation complete.")
         "transcript": transcript,
         "guidance": guidance,
         "title": title,
@@ -150,6 +149,7 @@ def generate_summary(transcript, title, url, video_id, date):
         "video_id": video_id,
         "date": date
     })
+    logging.info("Graph invocation complete.")
     
     # Combine the expanded summary and yaml frontmatter
     combined_result = f"{result['yaml_frontmatter']}\n\n{result['summary']}\n\n{result['expanded_summary']}"

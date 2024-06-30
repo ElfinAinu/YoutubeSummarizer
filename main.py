@@ -96,4 +96,7 @@ def configure():
     }
     config.save_config(config_data)
     print("Configuration saved successfully.")
+
+if __name__ == "__main__":
+    main()
     print("Configuration saved successfully.")

@@ -10,6 +10,7 @@ from utils.summarization import generate_summary
 from utils.file_operations import save_summary
 
 def main():
+    config.check_config()
     parser = argparse.ArgumentParser(description="YouTube Video Summarization Tool")
     parser.add_argument("mode", choices=["single", "interactive", "playlist"], help="Mode of operation")
     parser.add_argument("url", nargs="?", help="YouTube video or playlist URL")

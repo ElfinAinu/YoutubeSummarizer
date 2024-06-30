@@ -52,7 +52,8 @@ def main():
             url = input("Enter YouTube video URL (or 'exit' to quit): ")
             if url.lower() == "exit":
                 break
-            transcript = fetch_video_transcript(url)
+            video_details = fetch_video_transcript(url)
+            transcript = video_details["transcript"]
             summary = generate_summary(transcript)
             save_summary(summary, config.OUTPUT_FOLDER)
     elif args.mode == "playlist":
@@ -61,9 +62,10 @@ def main():
             sys.exit(1)
         videos = fetch_playlist_videos(args.url)
         for video in videos:
-            transcript = fetch_video_transcript(video)
+            video_details = fetch_video_transcript(video)
+            transcript = video_details["transcript"]
             summary = generate_summary(transcript)
-            save_summary(summary, config.OUTPUT_FOLDER)
+            save_summary(summary, config.OUTPUT_FOLDER, video_details["title"])
 
 def configure():
     print("Select LLM Provider:")

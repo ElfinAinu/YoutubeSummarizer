@@ -10,11 +10,16 @@ class StateSchema(TypedDict):
     critique: str
     outline: str  # Added outline to the state schema
     expanded_summary: str
+    yaml_frontmatter: str
 
 def generate_outline(state):
     transcript = state['transcript']
     model = ChatOpenAI(api_key=config.OPENAI_API_KEY, model=config.OPENAI_MODEL)
-    response = model.invoke(f"Create a comprehensive and well-thought-out outline of the following transcript in markdown format. The outline should be detailed and reflect the key points and structure of the content presented in the transcript. Consider the subject matter and what the viewer is intended to take from the content: {transcript}")
+    response = model.invoke(f"""Create a comprehensive and well-thought-out outline of the following transcript in markdown format.
+                            Your product is not necessarily intended to be short, but rather to be a comprehensive and well-thought-out 
+                            outline of the content presented in the transcript.
+                            The outline should be detailed and reflect the key points and structure of the content presented in the transcript. 
+                            Consider the subject matter and what the viewer is intended to take from the content: {transcript}""")
     outline = response.content  # Access the content attribute directly
     return {"outline": outline}
 
@@ -22,7 +27,10 @@ def call_model(state):
     transcript = state['transcript']
     guidance = state['guidance']
     model = ChatOpenAI(api_key=config.OPENAI_API_KEY, model=config.OPENAI_MODEL)
-    response = model.invoke(f"{guidance}\n\nSummarize the following transcript: {transcript}")
+    response = model.invoke(f"""{guidance}\n\nSummarize the following transcript, your intention is not necessarily to be brief, 
+                            but rather to be a comprehensive and well-thought-out summary of the content presented in the 
+                            transcript, giving the reader an alternative to watching the original video, 
+                            and a resource to review as a comprehension aid: {transcript}""")
     summary = response.content  # Access the content attribute directly
     return {"summary": summary}
 
@@ -41,15 +49,30 @@ def critique_summary(state):
 def expound_summary(state):
     summary = state['summary']
     model = ChatOpenAI(api_key=config.OPENAI_API_KEY, model=config.OPENAI_MODEL)
-    response = model.invoke(f"""Expand on the following summary to provide more detailed insights and explanations.
+    response = model.invoke(f"""Produce an additional section to be appended to the referenced summary.
+                            Your product should be in markdown format and clearly marked as 'Expanded Info'
+                            Expand on the summary to provide more detailed insights and explanations 
+                            *BUT DO NOT REPEAT THE CONTENT OF THE ORIGINAL SUMMARY*
+                            Do not reproduce the glossary or any other content that was already in the original summary.
                             Include practical examples, analogies, and real-world applications where appropriate.
                             Ensure the expanded content is comprehensive and enhances the reader's understanding of the subject matter.
-                            Differentiate the expanded content from the original summary so that it's clear to the reader what content
-                            is being expanded and what is the originally from the video.
-                            Use markdown formatting to separate the expanded content from the original summary.
+                            Structure your additions in a way that is easy to read and understand.
                             : {summary}""")
     expanded_summary = response.content  # Access the content attribute directly
     return {"expanded_summary": expanded_summary}
+
+def generate_yaml_frontmatter(state):
+    transcript = state['transcript']
+    # Read the YAML format guidance from the file
+    with open('utils/yaml_format.md', 'r') as file:
+        yaml_format = file.read()
+    model = ChatOpenAI(api_key=config.OPENAI_API_KEY, model=config.OPENAI_MODEL)
+    response = model.invoke(f"""Generate a yaml frontmatter for the following transcript, do not wrap the yaml frontmatter in any markdown formatting. 
+                             Use the following format as a guide:
+                             {yaml_format}
+                             : {transcript}""")
+    yaml_frontmatter = response.content  # Access the content attribute directly
+    return {"yaml_frontmatter": yaml_frontmatter}
 
 
 def generate_summary(transcript):
@@ -66,16 +89,18 @@ def generate_summary(transcript):
     graph.add_node("critique_step", critique_summary)
     graph.add_node("re_summarize", call_model)  # Re-run summarize step with critique input
     graph.add_node("expound_summary", expound_summary)  # Add expound_summary step
+    graph.add_node("generate_yaml_frontmatter", generate_yaml_frontmatter)  # Add generate_yaml_frontmatter step
     
     # Set the entry point and finish point
     graph.set_entry_point("generate_outline")
-    graph.set_finish_point("expound_summary")
+    graph.set_finish_point("generate_yaml_frontmatter")
     
     # Add edges between nodes
     graph.add_edge("generate_outline", "summarize")
     graph.add_edge("summarize", "critique_step")
     graph.add_edge("critique_step", "re_summarize")
-    graph.add_edge("re_summarize", "expound_summary")  # Add edge to expound_summary
+    graph.add_edge("re_summarize", "expound_summary")
+    graph.add_edge("expound_summary", "generate_yaml_frontmatter")  # Add edge to generate_yaml_frontmatter
     
     # Compile the graph
     compiled_graph = graph.compile()
@@ -83,4 +108,7 @@ def generate_summary(transcript):
     # Run the graph with the input transcript and guidance
     result = compiled_graph.invoke({"transcript": transcript, "guidance": guidance})
     
-    return result["expanded_summary"]
+    # Combine the expanded summary and yaml frontmatter
+    combined_result = f"{result['yaml_frontmatter']}\n\n{result['summary']}\n\n{result['expanded_summary']}"
+    
+    return combined_result

@@ -1,7 +1,6 @@
 # Helper functions for interacting with APIs
 
 import requests
-import json
 import config
 
 def fetch_video_transcript(video_url):

@@ -49,7 +49,10 @@ def main():
             sys.exit(1)
         logging.info(f"Fetching video transcript for URL: {args.url}")
         video_details = fetch_video_transcript(args.url)
-        logging.info(f"Fetched video details: {video_details}")
+        logging.info(f"Fetched video title: {video_details['title']}")
+        logging.info(f"Fetched video URL: {video_details['url']}")
+        transcript_preview = video_details['transcript'][:100] + '...' if len(video_details['transcript']) > 100 else video_details['transcript']
+        logging.info(f"Fetched video transcript preview: {transcript_preview}")
         transcript = video_details["transcript"]
         logging.info("Generating summary...")
         summary = generate_summary(transcript, video_details["title"], video_details["url"], video_details["video_id"], datetime.now().strftime("%Y-%m-%d_%H%M%S"))
@@ -71,7 +74,7 @@ def main():
             logging.info(f"Fetched video transcript preview: {transcript_preview}")
             transcript = video_details["transcript"]
             logging.info("Generating summary...")
-            summary = generate_summary(transcript)
+            summary = generate_summary(transcript, video_details["title"], video_details["url"], video_details["video_id"], datetime.now().strftime("%Y-%m-%d_%H%M%S"))
             logging.info("Summary generated.")
             logging.info(f"Saving summary to {config.LIEUTUBE_PARENT_DIRECTORY}")
             save_summary(summary, config.LIEUTUBE_PARENT_DIRECTORY)
@@ -86,7 +89,7 @@ def main():
             video_details = fetch_video_transcript(video)
             logging.info(f"Fetched video details: {video_details}")
             transcript = video_details["transcript"]
-            summary = generate_summary(transcript)
+            summary = generate_summary(transcript, video_details["title"], video_details["url"], video_details["video_id"], datetime.now().strftime("%Y-%m-%d_%H%M%S"))
             logging.info(f"Saving summary to {config.LIEUTUBE_PARENT_DIRECTORY} with title {video_details['title']}")
             save_summary(summary, config.LIEUTUBE_PARENT_DIRECTORY, video_details["title"])
             logging.info("Summary saved.")

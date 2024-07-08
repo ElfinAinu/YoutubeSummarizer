@@ -92,11 +92,11 @@ def generate_yaml_frontmatter(state):
     yaml_frontmatter = fill_yaml_frontmatter(title, url, video_id, date)
 
     model = ChatOpenAI(api_key=config.OPENAI_API_KEY, model=config.OPENAI_MODEL)
-    response = model.invoke(f"""Generate a yaml frontmatter to help with categorization and searching for this summary in a large collection.
-                            Fence the yaml content between triple dashes `---`. Do not place any additional content or formatting in your output.
-                            The yaml fencing `---` must begin at the very first character of your output. The yaml fencing `---` must be the very last part of your output.
+    response = model.invoke(f"""Generate the yaml frontmatter to help with categorization and searching for this summary in a large collection of obsidian notes.
+                            Fence the yaml content between triple dashes `---`.  The yaml fencing `---` must begin at the very first character of your output. The yaml fencing `---` must be the very last part of your output. 
+                            Do not place any additional content, headings, formatting or symbols in your output.
                             Return only that content.
-                            Use the following format as a guide:
+                            The following frontmatter is prepopulated with video title, video_id, channel name, and the current date/time:
                              {yaml_frontmatter}
                              : {transcript}""")
     yaml_frontmatter = response.content
@@ -152,8 +152,10 @@ def generate_summary(transcript, title, url, video_id, date):
     })
     logging.info("Graph invocation complete.")
     
+    logging.info(f"Yaml frontmatter: {result['yaml_frontmatter']}")
     # Combine the expanded summary and yaml frontmatter
-    combined_result = f"{result['yaml_frontmatter']}\n\n{result['summary']}\n\n{result['expanded_summary']}"
+    cleaned_yaml_frontmatter = result['yaml_frontmatter'].replace("# Summary", "").replace("```yaml", "").replace("```", "").strip()
+    combined_result = f"{cleaned_yaml_frontmatter}\n\n{result['summary']}\n\n{result['expanded_summary']}"
     
     logging.info("Summary generation complete.")
     return combined_result

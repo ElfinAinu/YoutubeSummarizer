@@ -91,20 +91,25 @@ def fetch_playlist_videos(playlist_url):
         logging.error(f"Failed to fetch playlist videos for URL: {playlist_url}. Error: {e}")
         raise Exception("Failed to fetch playlist videos")
 
-def extract_video_id(url):
+def extract_video_id(input_value):
+    # Check if the input is already a video ID
+    if re.match(r'^[0-9A-Za-z_-]{11}$', input_value):
+        logging.info(f"Input is already a video ID: {input_value}")
+        return input_value
+    
     # Extract video ID from YouTube URL using regex
-    logging.info(f"Extracting video ID from URL: {url}")
-    video_id_match = re.search(r'(?:v=|\/)([0-9A-Za-z_-]{11}).*', url)
+    logging.info(f"Extracting video ID from URL: {input_value}")
+    video_id_match = re.search(r'(?:v=|\/)([0-9A-Za-z_-]{11}).*', input_value)
     logging.info(f"Extracted video ID: {video_id_match.group(1) if video_id_match else 'None'}")
     if video_id_match:
         return video_id_match.group(1)
     else:
-        raise ValueError(f"Invalid YouTube URL: {url}")
+        raise ValueError(f"Invalid YouTube URL or video ID: {input_value}")
 
 def extract_playlist_id(url):
     # Extract playlist ID from YouTube URL using regex
     logging.info(f"Extracting playlist ID from URL: {url}")
-    playlist_id_match = re.search(r'(?:list=|\/)([0-9A-Za-z_-]{1}).*', url)
+    playlist_id_match = re.search(r'[?&]list=([0-9A-Za-z_-]+)', url)
     logging.info(f"Extracted playlist ID: {playlist_id_match.group(1) if playlist_id_match else 'None'}")
     if playlist_id_match:
         return playlist_id_match.group(1)

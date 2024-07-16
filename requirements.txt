@@ -3,3 +3,8 @@ flask
 langgraph
 requests
 pytest
+youtube_transcript_api
+argparse
+python-dotenv
+openai
+anthropic

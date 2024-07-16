@@ -6,11 +6,6 @@ import os
 import json
 import logging
 
-# Load API keys from environment variables
-ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
-
 # Load configuration from JSON file
 CONFIG_FILE = 'config.json'
 
@@ -28,6 +23,11 @@ def save_config(config_data):
 
 config_data = load_config()
 
+# Load API keys from config.json, fallback to environment variables
+ANTHROPIC_API_KEY = config_data.get('ANTHROPIC_API_KEY') or os.getenv('ANTHROPIC_API_KEY')
+OPENAI_API_KEY = config_data.get('OPENAI_API_KEY') or os.getenv('OPENAI_API_KEY')
+YOUTUBE_API_KEY = config_data.get('YOUTUBE_API_KEY') or os.getenv('YOUTUBE_API_KEY')
+
 # Output folder path
 LIEUTUBE_PARENT_DIRECTORY = os.getenv('LIEUTUBE_PARENT_DIRECTORY', 'output')
 # Preferred model for LangGraph
@@ -40,9 +40,10 @@ ANTHROPIC_MODEL = config_data.get('ANTHROPIC_MODEL', 'claude-3.5')
 
 def check_config():
     required_vars = ['ANTHROPIC_API_KEY', 'OPENAI_API_KEY', 'YOUTUBE_API_KEY', 'LIEUTUBE_PARENT_DIRECTORY']
-    missing_vars = [var for var in required_vars if not os.getenv(var)]
+    missing_vars = [var for var in required_vars if not globals().get(var)]
     
     if missing_vars:
-        raise EnvironmentError(f"Missing required environment variables: {', '.join(missing_vars)}")
+        raise EnvironmentError(f"Missing required configuration variables: {', '.join(missing_vars)}")
     logging.info(f"Using YouTube API key: {YOUTUBE_API_KEY}")
-    logging.info(f"Using YouTube API key: {YOUTUBE_API_KEY}")
+    logging.info(f"Using OpenAI API key: {OPENAI_API_KEY}")
+    logging.info(f"Using Anthropic API key: {ANTHROPIC_API_KEY}")

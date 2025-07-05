@@ -24,12 +24,12 @@ def save_config(config_data):
 config_data = load_config()
 
 # Load API keys from config.json, fallback to environment variables
-ANTHROPIC_API_KEY = config_data.get('ANTHROPIC_API_KEY') or os.getenv('ANTHROPIC_API_KEY')
+ANTHROPIC_API_KEY = config_data.get('ANTHROPIC_API_KEY') or config_data.get('ANTROPIC_API_KEY') or os.getenv('ANTHROPIC_API_KEY')
 OPENAI_API_KEY = config_data.get('OPENAI_API_KEY') or os.getenv('OPENAI_API_KEY')
 YOUTUBE_API_KEY = config_data.get('YOUTUBE_API_KEY') or os.getenv('YOUTUBE_API_KEY')
 
 # Output folder path
-LIEUTUBE_PARENT_DIRECTORY = os.getenv('LIEUTUBE_PARENT_DIRECTORY', 'output')
+LIEUTUBE_PARENT_DIRECTORY = config_data.get('LIEUTUBE_PARENT_DIRECTORY') or os.getenv('LIEUTUBE_PARENT_DIRECTORY', './output')
 # Preferred model for LangGraph
 LANGGRAPH_MODEL = config_data.get('LANGGRAPH_MODEL', 'default_model')
 

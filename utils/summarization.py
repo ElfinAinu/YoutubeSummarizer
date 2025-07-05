@@ -55,6 +55,16 @@ def call_model(state):
     summary = response.content  # Access the content attribute directly
     return {"summary": summary}
 
+def critique_outline(state):
+    outline = state['outline']
+    model = ChatOpenAI(api_key=config.OPENAI_API_KEY, model=config.OPENAI_MODEL)
+    response = model.invoke(f"""Critique the following outline and suggest improvements.
+                            Consider the structure, completeness, and organization of the content.
+                            Provide specific suggestions for enhancement.
+                            : {outline}""")
+    critique = response.content  # Access the content attribute directly
+    return {"critique": critique}
+
 def critique_summary(state):
     summary = state['summary']
     model = ChatOpenAI(api_key=config.OPENAI_API_KEY, model=config.OPENAI_MODEL)
@@ -117,7 +127,7 @@ def generate_summary(transcript, title, url, video_id, date):
     # Add nodes to the graph
     graph.add_node("generate_outline", generate_outline)
     graph.add_node("summarize", call_model)
-    graph.add_node("critique_outline", critique_summary)  # Critique step for outline
+    graph.add_node("critique_outline", critique_outline)  # Critique step for outline
     graph.add_node("critique_summary", critique_summary)  # Critique step for summary
     graph.add_node("re_summarize", call_model)  # Re-run summarize step with critique input
     graph.add_node("expound_summary", expound_summary)  # Add expound_summary step

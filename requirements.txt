@@ -8,3 +8,5 @@ argparse
 python-dotenv
 openai
 anthropic
+google-api-python-client
+langchain-openai

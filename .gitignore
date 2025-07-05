@@ -1,2 +1,4 @@
-.aider*
 .claude/
+config.json
+venv/
+*.md

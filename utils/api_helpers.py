@@ -1,5 +1,6 @@
 import re
 import logging
+import os
 from youtube_transcript_api import YouTubeTranscriptApi
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -23,6 +24,10 @@ def get_video_details(video_id):
         return None, None
 
 def fetch_video_transcript(video_url):
+    # Check if we should use mock transcript
+    if os.getenv('USE_MOCK_TRANSCRIPT') == 'true':
+        return fetch_mock_transcript(video_url)
+    
     # Use YouTubeTranscriptApi to fetch video transcript and details
     video_id = extract_video_id(video_url)
     logging.info(f"Extracted video ID: {video_id}")
@@ -54,6 +59,38 @@ def fetch_video_transcript(video_url):
     except Exception as e:
         logging.error(f"Failed to fetch video transcript for URL: {video_url}. Error: {e}")
         raise Exception("Failed to fetch video transcript")
+
+def fetch_mock_transcript(video_url):
+    """Load transcript from mock file for testing purposes."""
+    mock_transcript_path = os.getenv('MOCK_TRANSCRIPT_PATH', 'tests/mock_transcript.txt')
+    video_id = extract_video_id(video_url)
+    
+    logging.info(f"Using mock transcript from: {mock_transcript_path}")
+    
+    try:
+        with open(mock_transcript_path, 'r', encoding='utf-8') as f:
+            transcript_text = f.read()
+        
+        logging.info(f"Successfully loaded mock transcript ({len(transcript_text)} characters)")
+        logging.info(f"Mock transcript preview: {transcript_text[:100]}...")
+        
+        video_info = {
+            "title": "Mock Video: AI and Machine Learning Explained",
+            "channel": "Mock Channel",
+            "url": video_url,
+            "video_id": video_id,
+            "transcript": transcript_text
+        }
+        
+        logging.info(f"Mock video details: {video_info}")
+        return video_info
+        
+    except FileNotFoundError:
+        logging.error(f"Mock transcript file not found: {mock_transcript_path}")
+        raise Exception(f"Mock transcript file not found: {mock_transcript_path}")
+    except Exception as e:
+        logging.error(f"Failed to load mock transcript: {e}")
+        raise Exception(f"Failed to load mock transcript: {e}")
 
 def fetch_playlist_videos(playlist_url):
     # Use YouTube API to fetch all videos in a playlist

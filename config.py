@@ -1,8 +1,6 @@
 # Configuration settings for the application
 
 import os
-
-import os
 import json
 import logging
 
@@ -24,7 +22,7 @@ def save_config(config_data):
 config_data = load_config()
 
 # Load API keys from config.json, fallback to environment variables
-ANTHROPIC_API_KEY = config_data.get('ANTHROPIC_API_KEY') or config_data.get('ANTROPIC_API_KEY') or os.getenv('ANTHROPIC_API_KEY')
+ANTHROPIC_API_KEY = config_data.get('ANTHROPIC_API_KEY') or os.getenv('ANTHROPIC_API_KEY')
 OPENAI_API_KEY = config_data.get('OPENAI_API_KEY') or os.getenv('OPENAI_API_KEY')
 YOUTUBE_API_KEY = config_data.get('YOUTUBE_API_KEY') or os.getenv('YOUTUBE_API_KEY')
 
@@ -44,6 +42,4 @@ def check_config():
     
     if missing_vars:
         raise EnvironmentError(f"Missing required configuration variables: {', '.join(missing_vars)}")
-    logging.info(f"Using YouTube API key: {YOUTUBE_API_KEY}")
-    logging.info(f"Using OpenAI API key: {OPENAI_API_KEY}")
-    logging.info(f"Using Anthropic API key: {ANTHROPIC_API_KEY}")
+    logging.info("Configuration loaded successfully")

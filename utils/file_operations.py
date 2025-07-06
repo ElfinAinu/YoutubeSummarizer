@@ -1,7 +1,6 @@
 # Functions for file operations
 
 import os
-
 import re
 import logging
 
@@ -20,4 +19,4 @@ def save_summary(summary, output_path, video_title):
     logging.info(f"Saving summary to file: {file_path}")
     with open(file_path, "w") as file:
         logging.info("Summary saved successfully.")
-        file.write(f"# Summary\n\n{summary}")
+        file.write(summary)

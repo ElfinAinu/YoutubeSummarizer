@@ -8,16 +8,16 @@ from datetime import datetime
 
 def fill_yaml_frontmatter(title, url, video_id, date):
     yaml_frontmatter = f"""---
-    title: "{title}"
-    url: "{url}"
-    video_id: "{video_id}"
-    date: "{date}"
-    channel: "Channel Name"
-    references: ["Book Title", "Research Paper", "Other Video"]
-    tags: ["List", "Of", "Applicable", "Tags"]
-    categories: ["List", "Of", "Applicable", "Categories"]
-    ---
-    """
+title: "{title}"
+url: "{url}"
+video_id: "{video_id}"
+date: "{date}"
+channel: "Channel Name"
+references: ["Book Title", "Research Paper", "Other Video"]
+tags: ["List", "Of", "Applicable", "Tags"]
+categories: ["List", "Of", "Applicable", "Categories"]
+---
+"""
     return yaml_frontmatter
 
 class StateSchema(TypedDict):

@@ -57,94 +57,20 @@ def main():
         if not args.url:
             print("Error: URL is required for single video mode")
             sys.exit(1)
-        logging.info(f"Fetching video transcript for URL: {args.url}")
-        video_details = fetch_video_transcript(args.url)
-        logging.info(f"Fetched video title: {video_details['title']}")
-        logging.info(f"Fetched video URL: {video_details['url']}")
-        transcript_preview = (
-            video_details["transcript"][:100] + "..."
-            if len(video_details["transcript"]) > 100
-            else video_details["transcript"]
-        )
-        logging.info(f"Fetched video transcript preview: {transcript_preview}")
-        transcript = video_details["transcript"]
-        logging.info("Generating summary...")
-        summary = generate_summary(
-            transcript,
-            video_details["title"],
-            video_details["url"],
-            video_details["video_id"],
-            datetime.now().strftime("%Y-%m-%d_%H%M%S"),
-        )
-        logging.info("Summary generated.")
-        video_title = video_details["title"]  # Fetch the actual video title here
-        logging.info(
-            f"Saving summary to {config.LIEUTUBE_PARENT_DIRECTORY} with title {video_title}"
-        )
-        save_summary(summary, config.LIEUTUBE_PARENT_DIRECTORY, video_title)
-        logging.info("Summary saved.")
+        process_video(args.url)
     elif args.mode == "interactive":
         while True:
             url = input("Enter YouTube video URL (or 'exit' to quit): ")
             if url.lower() == "exit" or url == "":
                 break
-            logging.info(f"Fetching video transcript for URL: {url}")
-            video_details = fetch_video_transcript(url)
-            logging.info(f"Fetched video title: {video_details['title']}")
-            logging.info(f"Fetched video URL: {video_details['url']}")
-            transcript_preview = (
-                video_details["transcript"][:100] + "..."
-                if len(video_details["transcript"]) > 100
-                else video_details["transcript"]
-            )
-            logging.info(f"Fetched video transcript preview: {transcript_preview}")
-            transcript = video_details["transcript"]
-            video_title = video_details["title"]  # Fetch the actual video title here
-            logging.info("Generating summary...")
-            summary = generate_summary(
-                transcript,
-                video_details["title"],
-                video_details["url"],
-                video_details["video_id"],
-                datetime.now().strftime("%Y-%m-%d_%H%M%S"),
-            )
-            logging.info("Summary generated.")
-            logging.info(f"Saving summary to {config.LIEUTUBE_PARENT_DIRECTORY}")
-            save_summary(summary, config.LIEUTUBE_PARENT_DIRECTORY, video_title)
-            logging.info("Summary saved.")
+            process_video(url)
     elif args.mode == "playlist":
         if not args.url:
             print("Error: URL is required for playlist mode")
             sys.exit(1)
         videos = fetch_playlist_videos(args.url)  # No need to pass the API key
         for video in videos:
-            logging.info(f"Fetching video transcript for video ID: {video}")
-            video_details = fetch_video_transcript(video)
-            logging.info(f"Fetched video title: {video_details['title']}")
-            logging.info(f"Fetched video URL: {video_details['url']}")
-            transcript_preview = (
-                video_details["transcript"][:100] + "..."
-                if len(video_details["transcript"]) > 100
-                else video_details["transcript"]
-            )
-            logging.info(f"Fetched video transcript preview: {transcript_preview}")
-            transcript = video_details["transcript"]
-            logging.info("Generating summary...")
-            summary = generate_summary(
-                transcript,
-                video_details["title"],
-                video_details["url"],
-                video_details["video_id"],
-                datetime.now().strftime("%Y-%m-%d_%H%M%S"),
-            )
-            logging.info("Summary generated.")
-            logging.info(
-                f"Saving summary to {config.LIEUTUBE_PARENT_DIRECTORY} with title {video_details['title']}"
-            )
-            save_summary(
-                summary, config.LIEUTUBE_PARENT_DIRECTORY, video_details["title"]
-            )
-            logging.info("Summary saved.")
+            process_video(video)
 
 
 def configure():
@@ -184,6 +110,40 @@ def configure():
     }
     config.save_config(config_data)
     print("Configuration saved successfully.")
+
+
+def process_video(url):
+    """Process a single video URL and save the summary."""
+    logging.info(f"Fetching video transcript for URL: {url}")
+    video_details = fetch_video_transcript(url)
+    logging.info(f"Fetched video title: {video_details['title']}")
+    logging.info(f"Fetched video URL: {video_details['url']}")
+    
+    transcript_preview = (
+        video_details["transcript"][:100] + "..."
+        if len(video_details["transcript"]) > 100
+        else video_details["transcript"]
+    )
+    logging.info(f"Fetched video transcript preview: {transcript_preview}")
+    
+    transcript = video_details["transcript"]
+    logging.info("Generating summary...")
+    
+    summary = generate_summary(
+        transcript,
+        video_details["title"],
+        video_details["url"],
+        video_details["video_id"],
+        datetime.now().strftime("%Y-%m-%d_%H%M%S"),
+    )
+    logging.info("Summary generated.")
+    
+    video_title = video_details["title"]
+    logging.info(
+        f"Saving summary to {config.LIEUTUBE_PARENT_DIRECTORY} with title {video_title}"
+    )
+    save_summary(summary, config.LIEUTUBE_PARENT_DIRECTORY, video_title)
+    logging.info("Summary saved.")
 
 
 if __name__ == "__main__":

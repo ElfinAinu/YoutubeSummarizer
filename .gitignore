@@ -1,4 +1,8 @@
 .claude/
 config.json
 venv/
-*.md
+# Development artifacts
+CLAUDE.md
+DevelopmentProgress.md
+RunningTests.md
+Mock*.md
